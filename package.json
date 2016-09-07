@@ -4,7 +4,7 @@
   "description": "English fleet planner and builder for Kantai Collection",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": ".\\node_modules\\.bin\\electron ."
   },
   "author": "Sebastian Mobo <stmobo@gmail.com>",
   "license": "ISC",

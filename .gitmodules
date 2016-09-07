@@ -1,0 +1,3 @@
+[submodule "KanColle-JSON-Database"]
+	path = KanColle-JSON-Database
+	url = https://github.com/stmobo/KanColle-JSON-Database.git
