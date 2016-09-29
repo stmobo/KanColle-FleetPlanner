@@ -15,7 +15,7 @@ var currentFleet = {};
 /* Slot numbers start at 1 and go to 6. */
 
 function updateStatsForShip(slotNum) {
-	var statRow = document.getElementById("fleetStats").rows[slotNum];
+	var statRow = document.getElementById("fleetStats").rows[slotNum*2];
 	var level = document.getElementById("flt-lvl-"+slotNum).value;
 
 	var stats = currentFleet[slotNum].selected.estimateStatsAtLevel(level);
@@ -33,6 +33,22 @@ function updateStatsForShip(slotNum) {
 	statRow.cells[10].innerHTML = stats.luck;
 	statRow.cells[11].innerHTML = currentFleet[slotNum].selected.getSpeedString();
 	statRow.cells[12].innerHTML = currentFleet[slotNum].selected.getRangeString();
+
+	var statRow2 = document.getElementById("fleetStats").rows[(slotNum*2)+1];
+
+	statRow2.cells[0].innerHTML = "0";
+	statRow2.cells[1].innerHTML = "0";
+	statRow2.cells[2].innerHTML = "N/A";
+	statRow2.cells[3].innerHTML = "N/A";
+	statRow2.cells[4].innerHTML = "0 ~ 0";
+	statRow2.cells[5].innerHTML = "0 ~ 0";
+	statRow2.cells[6].innerHTML = "No";
+	statRow2.cells[7].innerHTML = "Lots";
+
+	for (var i = 1; i <= currentFleet[slotNum].selected.equip.length; i++) {
+		var hangarElem = document.getElementById("flt-hangar-"+slotNum+"-"+i);
+		hangarElem.innerHTML = currentFleet[slotNum].selected.slot[i-1];
+	}
 }
 
 function newBaseShipSelected(slotNum) {
