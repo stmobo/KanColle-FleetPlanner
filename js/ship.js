@@ -141,6 +141,14 @@ Ship.prototype.getRemodels = function () {
 	return ret;
 };
 
+Ship.prototype.getFullName = function () {
+	if(this.name.suffix === null) {
+		return this.name.english;
+	} else {
+		return this.name.english + " " + db.ships.getSuffixText(this.name.suffix);
+	}
+};
+
 Ship.prototype.getRangeString = function () {
 	switch (this.stat.range) {
 		case 1:
@@ -184,12 +192,26 @@ Ship.prototype.equipItem = function(slotNum, item) {
 	* 'asw'
  * (Others like 'hp' and 'luck' will work but they don't increase on level up)
  */
-Ship.prototype.estimateStatAtLevel = function (stat, level) {
-	if(this.stat.hasOwnProperty(stat)) {
-		return this.stat[stat] + ((this.stat[stat + "_max"] - this.stat[stat]) * level / 99.0);
+function linEstShipStat (ship, stat, level) {
+	if(ship.stat.hasOwnProperty(stat)) {
+		return Math.round(ship.stat[stat] + ((ship.stat[stat + "_max"] - ship.stat[stat]) * level / 99.0));
 	} else {
 		return false;
 	}
 };
+
+Ship.prototype.estimateStatsAtLevel = function(level) {
+	return {
+		"hp":	(level >= 100) ? this.stat.hp_max : this.stat.hp,
+		"fire": linEstShipStat(this, "fire", level),
+		"torpedo": linEstShipStat(this, "torpedo", level),
+		"aa": linEstShipStat(this, "aa", level),
+		"armor": linEstShipStat(this, "armor", level),
+		"asw": linEstShipStat(this, "asw", level),
+		"los": linEstShipStat(this, "los", level),
+		"evasion": linEstShipStat(this, "evasion", level),
+		"luck": this.stat.luck
+	};
+}
 
 module.exports = Ship;

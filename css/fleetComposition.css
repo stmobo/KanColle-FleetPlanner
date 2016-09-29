@@ -1,0 +1,16 @@
+#fleetStats {
+	table-layout: fixed;
+}
+
+#fleetStats td {
+	overflow: hidden;
+	text-align: center;
+}
+
+#fleetSelect {
+	table-layout: fixed;
+}
+
+#fleetSelect td {
+	align-items: center;
+}

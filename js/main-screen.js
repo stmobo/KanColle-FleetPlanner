@@ -3,15 +3,49 @@ var Ship = require('../js/ship.js');
 
 var currentFleet = {};
 
-function updateFleetShip(slotNum) {
-	var shipSelector = document.getElementById("flt-sel-"+slotNum.toString());
-	var modelSelector = document.getElementById("flt-model-"+slotNum.toString());
+/*
+ Fleet member objects:
+{
+	 "base": base ship selected
+	 "models": array of remodels for base ship
+	 "selected": model selected of base
+}
+ */
 
-	var shipID = shipSelector.value;
+/* Slot numbers start at 1 and go to 6. */
 
-	currentFleet[slotNum] = new Ship(shipID);
+function updateStatsForShip(slotNum) {
+	var statRow = document.getElementById("fleetStats").rows[slotNum];
+	var level = document.getElementById("flt-lvl-"+slotNum).value;
 
-	var models = currentFleet[slotNum].getRemodels();
+	var stats = currentFleet[slotNum].selected.estimateStatsAtLevel(level);
+	statRow.cells[1].innerHTML = currentFleet[slotNum].selected.getFullName();
+	statRow.cells[2].innerHTML = stats.hp;
+
+	statRow.cells[3].innerHTML = stats.fire;
+	statRow.cells[4].innerHTML = stats.torpedo;
+	statRow.cells[5].innerHTML = stats.aa;
+	statRow.cells[6].innerHTML = stats.armor;
+	statRow.cells[7].innerHTML = stats.asw;
+
+	statRow.cells[8].innerHTML = stats.evasion;
+	statRow.cells[9].innerHTML = stats.los;
+	statRow.cells[10].innerHTML = stats.luck;
+	statRow.cells[11].innerHTML = currentFleet[slotNum].selected.getSpeedString();
+	statRow.cells[12].innerHTML = currentFleet[slotNum].selected.getRangeString();
+}
+
+function newBaseShipSelected(slotNum) {
+	var shipSelector = document.getElementById("flt-sel-"+slotNum);
+	var modelSelector = document.getElementById("flt-model-"+slotNum);
+	var baseID = shipSelector.value;
+
+	currentFleet[slotNum] = {
+		"base": new Ship(baseID),
+	};
+
+	var models = currentFleet[slotNum].base.getRemodels();
+	currentFleet[slotNum].selected = currentFleet[slotNum].base;
 
 	while(modelSelector.hasChildNodes()) {
 		modelSelector.removeChild(modelSelector.lastChild);
@@ -24,6 +58,22 @@ function updateFleetShip(slotNum) {
 
 		modelSelector.appendChild(opt);
 	}
+
+	document.getElementById("flt-lvl-"+slotNum).value
+		= currentFleet[slotNum].selected.base_lvl;
+
+	updateStatsForShip(slotNum);
+}
+
+function updateShipModel(slotNum) {
+	var modelSelector = document.getElementById("flt-model-"+slotNum);
+	var modelID = modelSelector.value;
+	currentFleet[slotNum].selected = new Ship(modelID);
+
+	document.getElementById("flt-lvl-"+slotNum).value
+		= currentFleet[slotNum].selected.base_lvl;
+
+	updateStatsForShip(slotNum);
 }
 
 function populateFleetSelector() {
@@ -96,11 +146,17 @@ function populateFleetSelector() {
 window.onload = function() {
 	populateFleetSelector();
 
-	var fltsel = document.getElementsByClassName("flt-sel");
-	for (var i = 0; i < fltsel.length; i++) {
-		(function(item, n) {
-			item.onchange = function() { updateFleetShip(n+1); };
-		})(fltsel.item(i), i);
-		updateFleetShip(i+1);
+	for (var i = 1; i <= 6; i++) {
+		var sel = document.getElementById("flt-sel-"+i);
+		var mdl = document.getElementById("flt-model-"+i);
+		var lvl = document.getElementById("flt-lvl-"+i);
+
+		(function(s, l, m, n) {
+			s.onchange = function() { newBaseShipSelected(n); };
+			l.onchange = function() { updateStatsForShip(n); };
+			m.onchange = function() { updateShipModel(n); };
+		})(sel, lvl, mdl, i);
+
+		newBaseShipSelected(i);
 	}
 }
