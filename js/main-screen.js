@@ -57,7 +57,8 @@ function updateStatsForShip(slotNum) {
 	} else {
 		statRow2.cells[3].innerHTML = "<span class=\"noOASW\">No<\/span>";
 	}
-	statRow2.cells[4].innerHTML = "0 ~ 0";	// Opening Airstrike power
+	var oas = currentFleet[slotNum].selected.getOpeningAirstrike();
+	statRow2.cells[4].innerHTML = oas.min + " ~ " + oas.max;
 	statRow2.cells[5].innerHTML = "0 ~ 0";	// Fighter power
 
 	// Cell 5: Artillery Spotting

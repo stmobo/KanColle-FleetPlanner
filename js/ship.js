@@ -535,4 +535,28 @@ Ship.prototype.getAACI = function () {
 	return 0;
 };
 
+Ship.prototype.getOpeningAirstrike = function () {
+	var oas = { "max": 0, "min":0 };
+
+	for (var i = 0; i < this.getMaxEquipSlot(); i++) {
+		var equip = this.currentEquipment[i];
+		if(equip != null) {
+			if(equip.type == 17 || equip.type == 20) {
+				// Seaplane bombers + dive bombers
+				var slotPower = Math.round(equip.stat.bomb * Math.sqrt(this.slot[i])) + 25;
+				oas.max += slotPower;
+				oas.min += slotPower;
+			} else if(equip.type == 19) {
+				// Torpedo bomber
+				var slotPower = Math.round(equip.stat.torpedo * Math.sqrt(this.slot[i])) + 25;
+
+				oas.max += Math.round(1.5 * slotPower);
+				oas.min += Math.round(0.8 * slotPower);
+			}
+		}
+	}
+
+	return oas;
+};
+
 module.exports = Ship;
