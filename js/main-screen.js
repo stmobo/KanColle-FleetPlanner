@@ -14,11 +14,13 @@ var currentFleet = {};
 
 /* Slot numbers start at 1 and go to 6. */
 
+var emptySlotLabel = "<Empty Slot>";
+
 function updateStatsForShip(slotNum) {
 	var statRow = document.getElementById("fleetStats").rows[slotNum*2];
 	var level = document.getElementById("flt-lvl-"+slotNum).value;
 
-	var stats = currentFleet[slotNum].selected.estimateStatsAtLevel(level);
+	var stats = currentFleet[slotNum].selected.getCurrentStats(level);
 	statRow.cells[1].innerHTML = currentFleet[slotNum].selected.getFullName();
 	statRow.cells[2].innerHTML = stats.hp;
 
@@ -49,11 +51,154 @@ function updateStatsForShip(slotNum) {
 		var hangarElem = document.getElementById("flt-hangar-"+slotNum+"-"+i);
 		hangarElem.innerHTML = currentFleet[slotNum].selected.slot[i-1];
 	}
+
+	document.getElementById("flt-type-"+slotNum).innerHTML = currentFleet[slotNum].selected.getTypeInfo().code;
+}
+
+function clearShipStats(slotNum) {
+	var statRow = document.getElementById("fleetStats").rows[slotNum*2];
+
+	statRow.cells[1].textContent = emptySlotLabel;
+	statRow.cells[2].innerHTML = "";
+
+	statRow.cells[3].innerHTML = "";
+	statRow.cells[4].innerHTML = "";
+	statRow.cells[5].innerHTML = "";
+	statRow.cells[6].innerHTML = "";
+	statRow.cells[7].innerHTML = "";
+
+	statRow.cells[8].innerHTML = "";
+	statRow.cells[9].innerHTML =  "";
+	statRow.cells[10].innerHTML = "";
+	statRow.cells[11].innerHTML = "";
+	statRow.cells[12].innerHTML = "";
+
+	var statRow2 = document.getElementById("fleetStats").rows[(slotNum*2)+1];
+
+	statRow2.cells[0].innerHTML = "";
+	statRow2.cells[1].innerHTML = "";
+	statRow2.cells[2].innerHTML = "";
+	statRow2.cells[3].innerHTML = "";
+	statRow2.cells[4].innerHTML = "";
+	statRow2.cells[5].innerHTML = "";
+	statRow2.cells[6].innerHTML = "";
+	statRow2.cells[7].innerHTML = "";
+}
+
+function updateItemSelectors(slotNum) {
+	var equipTypes = currentFleet[slotNum].selected.getEquippableItemTypes();
+
+	var optGroups = [];
+
+	for (var i = 0; i < equipTypes.length; i++) {
+		var typeData = kcJSON.items.getTypeDataByID(equipTypes[i]);
+		var group = document.createElement("optgroup");
+
+		group.label = typeData.name.english;
+
+		var items = kcJSON.items.getAllItemsOfType(equipTypes[i]);
+		for(var i2 = 0; i2 < items.length; i2++) {
+			var option = document.createElement("option");
+			option.value = items[i2].id;
+			option.label = items[i2].name.english;
+			group.appendChild(option);
+		}
+
+		optGroups.push(group);
+	}
+
+	for (var i = 1; i <= currentFleet[slotNum].selected.getMaxEquipSlot(); i++) {
+		var itemSel = document.getElementById("flt-itm-"+slotNum+"-"+i);
+
+		while(itemSel.hasChildNodes()) {
+			itemSel.removeChild(itemSel.lastChild);
+		}
+
+		for (var i2 = 0; i2 < optGroups.length; i2++) {
+			itemSel.appendChild(optGroups[i2].cloneNode(true));
+		}
+
+		var deSel= document.createElement("option");
+		deSel.value = null;
+		deSel.label = emptySlotLabel;
+		itemSel.appendChild(deSel);
+
+		itemSel.disabled = false;
+	}
+
+	for(var i=currentFleet[slotNum].selected.getMaxEquipSlot()+1; i<=4; i++) {
+		var itemSel = document.getElementById("flt-itm-"+slotNum+"-"+i);
+
+		while(itemSel.hasChildNodes()) {
+			itemSel.removeChild(itemSel.lastChild);
+		}
+
+		itemSel.disabled = true;
+	}
+}
+
+function setDefaultSelectedItems(slotNum) {
+	for(var i=1; i<=currentFleet[slotNum].selected.getMaxEquipSlot(); i++) {
+		var itemSel = document.getElementById("flt-itm-"+slotNum+"-"+i);
+
+		if(currentFleet[slotNum].selected.currentEquipment[i-1] != null) {
+			var currentID = currentFleet[slotNum].selected.currentEquipment[i-1].id;
+
+			for (var i2 = 0; i2 < itemSel.options.length; i2++) {
+				if(itemSel.options[i2].value == currentID) {
+					itemSel.selectedIndex = i2;
+					break;
+				}
+			}
+		} else {
+			for (var i2 = 0; i2 < itemSel.options.length; i2++) {
+				if(itemSel.options[i2].label === emptySlotLabel) {
+					itemSel.selectedIndex = i2;
+					break;
+				}
+			}
+		}
+	}
 }
 
 function newBaseShipSelected(slotNum) {
 	var shipSelector = document.getElementById("flt-sel-"+slotNum);
 	var modelSelector = document.getElementById("flt-model-"+slotNum);
+
+	if(shipSelector.options[shipSelector.selectedIndex].label === emptySlotLabel) {
+		/* Disable the other parts of the slot. */
+		modelSelector.disabled = true;
+		document.getElementById("flt-lvl-"+slotNum).disabled = true;
+
+		while(modelSelector.hasChildNodes()) {
+			modelSelector.removeChild(modelSelector.lastChild);
+		}
+
+		for(var i=1;i<=4;i++) {
+			var itemSelector = document.getElementById("flt-itm-"+slotNum+"-"+i);
+
+			while(itemSelector.hasChildNodes()) {
+				itemSelector.removeChild(itemSelector.lastChild);
+			}
+
+			itemSelector.disabled = true;
+
+			var hangarElem = document.getElementById("flt-hangar-"+slotNum+"-"+i);
+			hangarElem.innerHTML = "";
+		}
+
+		document.getElementById("flt-type-"+slotNum).innerHTML = "";
+
+		currentFleet[slotNum].base = null;
+		currentFleet[slotNum].selected = null;
+
+		clearShipStats(slotNum);
+
+		return;
+	}
+
+	modelSelector.disabled = false;
+
 	var baseID = shipSelector.value;
 
 	currentFleet[slotNum] = {
@@ -75,10 +220,14 @@ function newBaseShipSelected(slotNum) {
 		modelSelector.appendChild(opt);
 	}
 
-	document.getElementById("flt-lvl-"+slotNum).value
-		= currentFleet[slotNum].selected.base_lvl;
+	var levelSelector = document.getElementById("flt-lvl-"+slotNum);
+	levelSelector.value = currentFleet[slotNum].selected.base_lvl;
+	levelSelector.disabled = false;
 
 	updateStatsForShip(slotNum);
+	updateItemSelectors(slotNum);
+
+	setDefaultSelectedItems(slotNum);
 }
 
 function updateShipModel(slotNum) {
@@ -88,6 +237,24 @@ function updateShipModel(slotNum) {
 
 	document.getElementById("flt-lvl-"+slotNum).value
 		= currentFleet[slotNum].selected.base_lvl;
+
+	updateStatsForShip(slotNum);
+	updateItemSelectors(slotNum);
+
+	setDefaultSelectedItems(slotNum);
+}
+
+function updateShipItem(slotNum, itemNum) {
+	var itemSelector = document.getElementById("flt-itm-"+slotNum+"-"+itemNum);
+
+	if(itemSelector.options[itemSelector.selectedIndex].label == emptySlotLabel) {
+		currentFleet[slotNum].selected.unequipItem(itemNum-1);
+	} else {
+		currentFleet[slotNum].selected.equipItem(
+			itemNum-1,
+			kcJSON.items.getItemByID(itemSelector.value)
+		);
+	}
 
 	updateStatsForShip(slotNum);
 }
@@ -156,6 +323,11 @@ function populateFleetSelector() {
 
 			item.appendChild(optGroup);
 		}
+
+		var deSel= document.createElement("option");
+		deSel.value = null;
+		deSel.label = emptySlotLabel;
+		item.appendChild(deSel);
 	}
 }
 
@@ -163,15 +335,20 @@ window.onload = function() {
 	populateFleetSelector();
 
 	for (var i = 1; i <= 6; i++) {
-		var sel = document.getElementById("flt-sel-"+i);
-		var mdl = document.getElementById("flt-model-"+i);
-		var lvl = document.getElementById("flt-lvl-"+i);
+		(function(n) {
+			var sel = document.getElementById("flt-sel-"+n);
+			var mdl = document.getElementById("flt-model-"+n);
+			var lvl = document.getElementById("flt-lvl-"+n);
 
-		(function(s, l, m, n) {
-			s.onchange = function() { newBaseShipSelected(n); };
-			l.onchange = function() { updateStatsForShip(n); };
-			m.onchange = function() { updateShipModel(n); };
-		})(sel, lvl, mdl, i);
+			sel.onchange = function() { newBaseShipSelected(n); };
+			mdl.onchange = function() { updateShipModel(n); };
+			lvl.onchange = function() { updateStatsForShip(n); };
+
+			document.getElementById("flt-itm-"+n+"-1").onchange = function() { updateShipItem(n, 1); };
+			document.getElementById("flt-itm-"+n+"-2").onchange = function() { updateShipItem(n, 2); };
+			document.getElementById("flt-itm-"+n+"-3").onchange = function() { updateShipItem(n, 3); };
+			document.getElementById("flt-itm-"+n+"-4").onchange = function() { updateShipItem(n, 4); };
+		})(i);
 
 		newBaseShipSelected(i);
 	}

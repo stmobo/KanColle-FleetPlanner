@@ -125,8 +125,11 @@ var Ship = function(id) {
 	this.currentEquipment = [];
 
 	for (var i = 0; i < this.equip.length; i++) {
-		if(this.equip[i] != "")
+		if(this.equip[i] !== "") {
 			this.currentEquipment[i] = db.items.getItemByID(this.equip[i]);
+		} else {
+			this.currentEquipment[i] = null;
+		}
 	}
 };
 
@@ -142,15 +145,32 @@ Ship.prototype.getRemodels = function () {
 };
 
 Ship.prototype.getFullName = function () {
-	if(this.name.suffix === null) {
+	if(this.name.suffix == null) {
 		return this.name.english;
 	} else {
 		return this.name.english + " " + db.ships.getSuffixText(this.name.suffix);
 	}
 };
 
+Ship.prototype.getMaxEquipSlot = function() {
+	return this.equip.length;
+};
+
+Ship.prototype.getRangeStat = function () {
+	var range = this.stat.range;
+	for (var i = 0; i < this.getMaxEquipSlot(); i++) {
+		if(this.currentEquipment[i] != null) {
+			if(this.currentEquipment[i].stat.hasOwnProperty("range")) {
+				range += this.currentEquipment[i].stat.range;
+			}
+		}
+	}
+
+	return Math.min(range, 4);
+};
+
 Ship.prototype.getRangeString = function () {
-	switch (this.stat.range) {
+	switch (this.getRangeStat()) {
 		case 1:
 			return "Short";
 		case 2:
@@ -170,15 +190,34 @@ Ship.prototype.getSpeedString = function () {
 	return "Fast";
 };
 
-Ship.prototype.getMaxEquipSlot = function() {
-	return this.equip.length;
-};
-
 Ship.prototype.equipItem = function(slotNum, item) {
-	if(slotNum > this.equip.length)
+	if(slotNum >= this.getMaxEquipSlot())
 		return false;
 
 	this.currentEquipment[slotNum] = item;
+	return true;
+};
+
+Ship.prototype.unequipItem = function (slotNum) {
+	if(slotNum >= this.getMaxEquipSlot())
+		return false;
+
+	this.currentEquipment[slotNum] = null;
+	return true;
+};
+
+Ship.prototype.getTypeInfo = function () {
+	return db.ships.getTypeDataByID(this.type);
+};
+
+Ship.prototype.getEquippableItemTypes = function () {
+	var classEquippable = db.ships.getTypeDataByID(this.type).equipable;
+
+	if(this.hasOwnProperty("additional_item_types")) {
+		return classEquippable.concat(this.additional_item_types);
+	}
+
+	return classEquippable;
 };
 
 /* Estimate a ship's stats at a given level.
@@ -212,6 +251,23 @@ Ship.prototype.estimateStatsAtLevel = function(level) {
 		"evasion": linEstShipStat(this, "evasion", level),
 		"luck": this.stat.luck
 	};
+}
+
+Ship.prototype.getCurrentStats = function (level) {
+	var stats = this.estimateStatsAtLevel(level);
+
+	for (var i = 0; i < this.getMaxEquipSlot(); i++) {
+		if(this.currentEquipment[i] != null) {
+			for (var statName in this.currentEquipment[i].stat) {
+				if (this.currentEquipment[i].stat.hasOwnProperty(statName) &&
+					stats.hasOwnProperty(statName)) {
+					stats[statName] += this.currentEquipment[i].stat[statName];
+				}
+			}
+		}
+	}
+
+	return stats;
 }
 
 module.exports = Ship;

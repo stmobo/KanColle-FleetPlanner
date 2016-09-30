@@ -4,7 +4,7 @@ const kcJSON = require('./js/KanColle-JSON-DB.js');
 let win
 
 function createWindow() {
-	win = new BrowserWindow({width: 800, height: 600})
+	win = new BrowserWindow({width: 1024, height: 768})
 
 	win.loadURL(`file: //${__dirname}/html/index.html`)
 
@@ -14,7 +14,7 @@ function createWindow() {
 }
 
 app.on('ready', function() {
-	
+
 	createWindow();
 });
 

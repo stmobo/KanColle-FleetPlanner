@@ -37,6 +37,17 @@ var shipsDB = function() {
 
 var itemsDB = function() {
 	this.items = readInJSONList('items.json');
+	this.itemTypes = readInJSONList('item_types.json');
+	this.typeCollections = readInJSONList('item_type_collections.json');
+
+	for (var id in this.items) {
+		if (this.items.hasOwnProperty(id)) {
+			var item = this.items[id];
+			if(!this.itemTypes[item.type].hasOwnProperty("items"))
+				this.itemTypes[item.type].items = [];
+			this.itemTypes[item.type].items.push(item);
+		}
+	}
 };
 
 shipsDB.prototype.getShipDataByID = function (id) {
@@ -91,8 +102,32 @@ shipsDB.prototype.getSuffixText = function (suffixID) {
 };
 
 itemsDB.prototype.getItemByID = function (id) {
-	if(this.hasOwnProperty(id)) {
+	if(this.items.hasOwnProperty(id)) {
 		return this.items[id];
+	}
+};
+
+itemsDB.prototype.getTypeDataByID = function (id) {
+	if(this.itemTypes.hasOwnProperty(id))
+		return this.itemTypes[id];
+};
+
+itemsDB.prototype.getTypeCollectionByID = function (id) {
+	if(this.typeCollections.hasOwnProperty(id))
+		return this.typeCollections[id];
+};
+
+itemsDB.prototype.getAllItemsOfType = function (type) {
+	if(typeof type === "number") {
+		return this.itemTypes[type].items;
+	} else if(type.constructor === Array) {
+		var ret = [];
+
+		for (var i = 0; i < type.length; i++) {
+			ret = ret.concat(this.itemTypes[type[i]].items);
+		}
+		
+		return ret;
 	}
 };
 
