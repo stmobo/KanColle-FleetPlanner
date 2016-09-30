@@ -406,11 +406,11 @@ Ship.prototype.getAACI = function () {
 				case 6: // Large-Caliber Main Guns
 					hasMainGun = true;
 					break;
-				case 9:	// AA Secondary Gun + AAFD
+				case 9:	// Secondary High-Angle Gun + AAFD
 					hasAAFD = true;
 					// fall thru
-				case 8: // AA Secondary Gun
-					hasAASecondary = true;
+				case 8: // Secondary High-Angle Gun
+					nHAGuns += 1;
 					break;
 				case 10: // Anti-Aircraft Shell
 					hasSanshiki = true;
