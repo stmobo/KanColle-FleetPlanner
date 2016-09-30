@@ -22,3 +22,27 @@ table, th, td {
 table {
 	border-collapse: collapse;
 }
+
+.hasAACI {
+	color: green;
+}
+
+.noAACI {
+	color: red;
+}
+
+.hasOASW {
+	color: green;
+}
+
+.noOASW {
+	color: red;
+}
+
+.hasSpotting {
+	color: green;
+}
+
+.noSpotting {
+	color: red;
+}

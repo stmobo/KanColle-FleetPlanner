@@ -38,14 +38,50 @@ function updateStatsForShip(slotNum) {
 
 	var statRow2 = document.getElementById("fleetStats").rows[(slotNum*2)+1];
 
-	statRow2.cells[0].innerHTML = "0";
-	statRow2.cells[1].innerHTML = "0";
-	statRow2.cells[2].innerHTML = "N/A";
-	statRow2.cells[3].innerHTML = "N/A";
-	statRow2.cells[4].innerHTML = "0 ~ 0";
-	statRow2.cells[5].innerHTML = "0 ~ 0";
-	statRow2.cells[6].innerHTML = "No";
-	statRow2.cells[7].innerHTML = "Lots";
+	statRow2.cells[0].innerHTML = "0";		// Anti-installation bonuses
+	statRow2.cells[1].innerHTML = "0";		// Night attack power
+
+	// Cell 3: AACI
+	var aaciType = currentFleet[slotNum].selected.getAACI();
+	if(aaciType > 0) {
+		statRow2.cells[2].innerHTML = "<span class=\"hasAACI\">" +
+		"Type " + aaciType + " (" + kcJSON.ships.getAACIShootdown(aaciType) + ")"
+		+ "<\/span>"
+	} else {
+		statRow2.cells[2].innerHTML = "<span class=\"noAACI\">No<\/span>";
+	}
+
+	// Cell 4: OASW
+	if(currentFleet[slotNum].selected.canOASW(level)) {
+		statRow2.cells[3].innerHTML = "<span class=\"hasOASW\">Yes<\/span>";	// OASW
+	} else {
+		statRow2.cells[3].innerHTML = "<span class=\"noOASW\">No<\/span>";
+	}
+	statRow2.cells[4].innerHTML = "0 ~ 0";	// Opening Airstrike power
+	statRow2.cells[5].innerHTML = "0 ~ 0";	// Fighter power
+
+	// Cell 5: Artillery Spotting
+	var artSpotType = currentFleet[slotNum].selected.getArtillerySpotting();
+	if(artSpotType > 0) {
+		var asText = "";
+		switch(artSpotType) {
+			case 1: asText = "Double Attack"; break;
+			case 2: asText = "Sec. Gun Cut-In"; break;
+			case 3: asText = "Radar Cut-In"; break;
+			case 4: asText = "AP Shell Cut-In"; break;
+			case 5: asText = "AP Shell CI + DA"; break;
+			case 6: asText = "Sec. Gun CI + DA"; break;
+			default: asText = ""; break;
+		}
+		statRow2.cells[6].innerHTML = "<span class=\"hasSpotting\">"+asText+"<\/span>";
+	} else {
+		statRow2.cells[6].innerHTML = "<span class=\"noSpotting\">No<\/span>";
+	}
+
+
+	statRow2.cells[7].innerHTML =
+		"Fuel: " + currentFleet[slotNum].selected.consum.fuel +
+		" Ammo: " + currentFleet[slotNum].selected.consum.ammo;
 
 	for (var i = 1; i <= currentFleet[slotNum].selected.equip.length; i++) {
 		var hangarElem = document.getElementById("flt-hangar-"+slotNum+"-"+i);

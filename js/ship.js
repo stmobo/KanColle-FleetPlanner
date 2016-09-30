@@ -270,4 +270,269 @@ Ship.prototype.getCurrentStats = function (level) {
 	return stats;
 }
 
+Ship.prototype.canOASW = function (level) {
+	if(this.id === 141)	// Isuzu Kai Ni
+		return true;
+
+	var stats = this.getCurrentStats(level);
+	if(stats.asw >= 100) {
+		for (var i = 0; i < this.getMaxEquipSlot(); i++) {
+			if(this.currentEquipment[i] != null) {
+				// Check if item is a sonar
+				if(this.currentEquipment[i].type == 27 ||
+					this.currentEquipment[i].type == 28) {
+						return true;
+				}
+			}
+		}
+	}
+
+	return false;
+};
+
+/* 0 = None
+ * 1 = Double Attack Only
+ * 2 = Basic Cut-In Only
+ * 3 = Radar CI Only
+ * 4 = AP Shell CI Only
+ * 5 = Both DA + AP Shell CI
+ * 6 = DA and Sec. Gun CI
+ */
+Ship.prototype.getArtillerySpotting = function () {
+	var nMain = 0;
+	var nSecondary = 0;
+	var hasSeaplane = false;
+	var hasRadar = false;
+	var hasAPShell = false;
+
+	for (var i = 0; i < this.getMaxEquipSlot(); i++) {
+		var equip = this.currentEquipment[i];
+		if(equip != null) {
+			switch(equip.type) {
+				case 4:
+				case 5:
+				case 6: // Main Guns
+					nMain += 1;
+					break;
+				case 7: // Secondary Guns
+					nSecondary += 1;
+					break;
+				case 11: // AP Shell
+					hasAPShell = true;
+					break;
+				case 15: // Recon Seaplane
+				case 16: // Night Recon Seaplane
+				case 17: // Seaplane Bomber
+					hasSeaplane = true;
+					break;
+				case 25: // Small Radar
+				case 26: // Large Radar
+				case 47: // Large Radar (II?)
+					hasRadar = true;
+					break;
+				default: break;
+			}
+		}
+	}
+
+	var hasDA = false;
+	var ciType = 0; // 0 = none, 1 = basic, 2 = radar, 3 = AP shell
+
+	if(!hasSeaplane)
+		return 0; // no daytime special attacks w/o a seaplane
+
+	if(nMain >= 2)
+		hasDA = true;
+
+	if(nMain >= 1) {
+		if(hasRadar) {
+			ciType = 2;
+		} else if(hasAPShell) {
+			ciType = 3;
+		} else if(nSecondary >= 1) {
+			ciType = 1;
+		}
+	}
+
+	if(hasDA) {
+		switch(ciType) {
+			case 1: return 6; // Hybrid DA + Sec.Gun CI
+			case 2: return 1; // 2xMainGun + Radar + Seaplane = only a DA.
+			case 3: return 5; // Hybrid DA + AP CI
+
+			case 0:
+			default:
+				return 1; // only a DA
+		}
+	} else {
+		switch(ciType) {
+			case 1: return 2; // Secondary CI
+			case 2: return 3; // Radar CI
+			case 3: return 4; // AP Shell CI
+
+			case 0:
+			default:
+				return 0; // No DA, no CI
+		}
+	}
+
+	return 0; // just in case
+};
+
+Ship.prototype.getAACI = function () {
+	/* Gather data on AACI prereqs */
+	var nHAGuns = 0;		// High-Angle mounted gun
+	var nBuiltInFDGuns = 0; // High-Angle Gun + Built-in AAFD
+
+	var hasMainGun = false;
+	var hasSanshiki = false;
+	var hasAAFD = false;
+	var hasRadar = false;
+	var has25mmCD = false;
+	var hasAASecondary = false;
+
+	for (var i = 0; i < this.getMaxEquipSlot(); i++) {
+		var equip = this.currentEquipment[i];
+		if(equip != null) {
+			switch(equip.type) {
+				case 3: // HA + AAFD
+					nBuiltInFDGuns += 1;
+					hasAAFD = true;
+					// fall thru
+				case 2: // HA Mount
+					nHAGuns += 1;
+					break;
+				case 5:
+				case 6: // Large-Caliber Main Guns
+					hasMainGun = true;
+					break;
+				case 9:	// AA Secondary Gun + AAFD
+					hasAAFD = true;
+					// fall thru
+				case 8: // AA Secondary Gun
+					hasAASecondary = true;
+					break;
+				case 10: // Anti-Aircraft Shell
+					hasSanshiki = true;
+					break;
+				case 24:
+				case 25: // Radar
+					// TODO: create a new item type for Air Radars and check that instead
+					if(equip.id == 27 ||
+						equip.id == 30 ||
+						equip.id == 32 ||
+						equip.id == 89 ||
+						equip.id == 106) {
+						hasRadar = true;
+					}
+					break;
+				case 30: // Concentrated Deployment AA Guns
+					has25mmCD = true;
+					// fall thru
+				case 29: // Secondary AA Guns
+					hasAASecondary = true;
+					break;
+				case 31: // Anti-Aircraft Fire Director
+					hasAAFD = true;
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
+	/* Now actually resolve the AACI.
+	 * For AACI resolution, we move down the list of possible AACIs from
+	 * most-damaging to least, taking the first that we fulfill.*/
+
+	/* Sorted AACI List:
+	 * +8:
+	 *  - Type 10: Maya K2 + HA + 25mmCD + Radar
+	 * +7:
+	 *  - Type 1: Akizuki-Class + 2xHA + Radar
+	 * +6:
+	 *  - Type 2: Akizuki-Class + HA + Radar
+	 *  - Type 4: Battleship + Main Gun + Sanshiki + AAFD + Radar
+	 *  - Type 11: Maya K2 + HA + 25mmCD
+	 * +5:
+	 *  - [none]
+	 * +4:
+	 *  - Type 3: Akizuki-Class + 2xHA
+	 *  - Type 5: Any + 2x Built-In HA + Radar
+	 *  - Type 6: Battleship + Main Gun + Sanshiki + AAFD
+	 *  - Type 8: Any + Built-in HA + Radar
+	 *  - Type 14: Isuzu K2 + HA + Secondary AA + Radar
+	 *  - Type 16: Kasumi K2B + HA + Secondary AA + Radar
+	 * +3:
+	 *  - Type 7: Any + HA Mount + AAFD + Radar
+	 *  - Type 12: Any + 25mmCD + Secondary AA + Radar
+	 *  - Type 15: Isuzu K2 + HA + Secondary AA
+	 * +2:
+	 *  - Type 9: Any + HA + AAFD
+	 *  - Type 17: Kasumi K2B + HA + Secondary AA
+	 *  - Type 18: Satsuki K2 + 25mmCD
+	 */
+
+	/* Maya, Akizuki-class, and Battleship special AACIs all shoot down more
+	*  planes than any general (any-ship) AACI, so we can just check them first. */
+	if(this.id == 428) {
+		// Maya K2
+		if(nHAGuns >= 1 && has25mmCD && hasRadar) {
+			return 10; // +8
+		} else if(nHAGuns >= 1 && has25mmCD) {
+			return 11; // +6
+		}
+	} else if(this.type == 19) {
+		// Akizuki-class DD
+		if(nHAGuns >= 2 && hasRadar) {
+			return 1; // +7
+		} else if(nHAGuns >= 1 && hasRadar) {
+			return 2; // +6
+		} else if(nHAGuns >= 2) {
+			return 3; // +4
+		}
+	} else if(this.type == 6 ||
+		this.type == 7 ||
+		this.type == 8 ||
+		this.type == 18 ||
+		this.type == 20)
+	{
+		// Ship is a battleship
+		if(hasMainGun && hasSanshiki && hasAAFD && hasRadar) {
+			return 4; // +6
+		} else if(hasMainGun && hasSanshiki && hasAAFD) {
+			return 6; // +4
+		}
+	}
+
+	if(nBuiltInFDGuns >= 2 && hasRadar) {
+		return 5; // +4
+	} else if(nBuiltInFDGuns >= 1 && hasRadar) {
+		return 8; // +4
+	} else if(this.id == 141 && nHAGuns >= 1 && hasAASecondary && hasRadar) {
+		// Isuzu K2
+		return 14; // +4
+	} else if(this.id == 471 && nHAGuns >= 1 && hasAASecondary && hasRadar) {
+		// Kasumi K2B
+		return 16; // +4
+	} else if(nHAGuns >= 1 && hasAAFD && hasRadar) {
+		return 7; // +3
+	} else if(has25mmCD && hasAASecondary && hasRadar) {
+		return 12; // +3
+	} else if(this.id == 141 && nHAGuns >= 1 && hasAASecondary) {
+		// Isuzu K2 again
+		return 15; // +3
+	} else if(nHAGuns >= 1 && hasAAFD) {
+		return 9; // +2
+	} else if(this.id == 471 && nHAGuns >= 1 && hasAASecondary) {
+		// Kasumi K2B again
+		return 17; // +2
+	} else if(this.id == 418 && has25mmCD) {
+		// Satsuki K2
+		return 18;
+	}
+
+	return 0;
+};
+
 module.exports = Ship;
