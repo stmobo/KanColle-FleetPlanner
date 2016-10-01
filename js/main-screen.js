@@ -59,7 +59,10 @@ function updateStatsForShip(slotNum) {
 	}
 	var oas = currentFleet[slotNum].selected.getOpeningAirstrike();
 	statRow2.cells[4].innerHTML = oas.min + " ~ " + oas.max;
-	statRow2.cells[5].innerHTML = "0 ~ 0";	// Fighter power
+
+	// Cell 5: Fighter power
+	var fp = currentFleet[slotNum].selected.getFighterPower();
+	statRow2.cells[5].innerHTML = fp.min + " ~ " + fp.max;
 
 	// Cell 5: Artillery Spotting
 	var artSpotType = currentFleet[slotNum].selected.getArtillerySpotting();
@@ -79,7 +82,7 @@ function updateStatsForShip(slotNum) {
 		statRow2.cells[6].innerHTML = "<span class=\"noSpotting\">No<\/span>";
 	}
 
-
+	// Cell 6: Resource consumption
 	statRow2.cells[7].innerHTML =
 		"Fuel: " + currentFleet[slotNum].selected.consum.fuel +
 		" Ammo: " + currentFleet[slotNum].selected.consum.ammo;
@@ -171,6 +174,9 @@ function updateItemSelectors(slotNum) {
 		}
 
 		itemSel.disabled = true;
+
+		var hangarElem = document.getElementById("flt-hangar-"+slotNum+"-"+i);
+		hangarElem.innerHTML = "";
 	}
 }
 

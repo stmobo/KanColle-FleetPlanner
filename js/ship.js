@@ -559,4 +559,22 @@ Ship.prototype.getOpeningAirstrike = function () {
 	return oas;
 };
 
+Ship.prototype.getFighterPower = function () {
+	var fp = { "min": 0, "max": 0 };
+
+	for (var i = 0; i < this.getMaxEquipSlot(); i++) {
+		var equip = this.currentEquipment[i];
+		if(equip != null) {
+			if( (equip.type == 18 || equip.type == 51) ||
+				(equip.type == 19 || equip.type == 20) && (equip.stat.aa > 0)) {
+				var base = Math.floor(Math.sqrt(this.slot[i]) * equip.stat.aa);
+				fp.min += base;
+				fp.max += base + 25; // Max proficiency
+			}
+		}
+	}
+
+	return fp;
+};
+
 module.exports = Ship;
