@@ -23,27 +23,11 @@ table {
 	border-collapse: collapse;
 }
 
-.hasAACI {
+.hasValue {
 	color: green;
 }
 
-.noAACI {
-	color: red;
-}
-
-.hasOASW {
-	color: green;
-}
-
-.noOASW {
-	color: red;
-}
-
-.hasSpotting {
-	color: green;
-}
-
-.noSpotting {
+.noValue {
 	color: red;
 }
 
@@ -86,4 +70,8 @@ table {
 
 .infoSection {
 	display: none;
+}
+
+.fleetInfo {
+	list-style-type: none;
 }

@@ -211,9 +211,22 @@
 				</div> <!-- end of fleetStatsSection -->
 
 				<div id="fleetInfoSection" class="infoSection">
-					<p>
-						Stuff goes here.
-					</p>
+					<ul id="fleetInfo" class="fleetInfo">
+						<li>Fighter Power: <span id="fleetInfo-FighterPower"></span></li>
+						<li>Fleet Speed: <span id="fleetInfo-Speed"></span></li>
+						<li>Fleet Level: <span id="fleetInfo-Level"></span></li>
+						<li>Maximum Resource Consumption:
+							<ul class="fleetInfo">
+								<li>Ammo: <span id="fleetInfo-ammoConsum"></span></li>
+								<li>Fuel: <span id="fleetInfo-fuelConsum"></span></li>
+							</ul>
+						</li>
+						<li>Fleet Total (Simple) LOS: <span id="fleetInfo-TLOS"></span></li>
+						<li>Fleet Composition Notation: <span id="fleetInfo-Notation"></span></li>
+						<li>Surface Task Force: <span id="fleetInfo-STF"></span></li>
+						<li>Carrier Task Force: <span id="fleetInfo-CTF"></span></li>
+						<li>Transport-Escort Combined Fleet: <span id="fleetInfo-TECF"></span></li>
+					</ul>
 				</div> <!-- end of fleetInfoSection -->
 			</div> <!-- end of tabbedInfoSection -->
 		</div> <!-- end of infoView -->

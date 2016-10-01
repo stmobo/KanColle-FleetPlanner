@@ -270,6 +270,61 @@ Ship.prototype.getCurrentStats = function (level) {
 	return stats;
 }
 
+
+function capAttackPower(power, cap) {
+	if(power <= cap) {
+		return power;
+	} else {
+		return Math.floor(cap + Math.sqrt(power - cap));
+	}
+}
+
+Ship.prototype.getNightAttack = function (level) {
+	var stats = this.getCurrentStats(level);
+
+	return capAttackPower(
+		stats.fire + stats.torpedo,
+		300
+	);
+};
+
+Ship.prototype.getInstallationAttack = function (level) {
+	var stats = this.getCurrentStats(level);
+
+	var outputFP = stats.fire;
+
+	var hasSanshiki = false;
+	var nWG42 = 0;
+
+	for (var i = 0; i < this.getMaxEquipSlot(); i++) {
+		if(this.currentEquipment[i] != null) {
+			if(this.currentEquipment[i].type == 10) {
+				// Type 3 Shell
+				hasSanshiki = true;
+			} else if(this.currentEquipment[i].id == 126) {
+				// WG42
+				nWG42 += 1;
+			}
+		}
+	}
+
+	if(hasSanshiki)
+		outputFP = Math.floor(outputFP * 2.5);
+
+	switch(nWG42) {
+		case 1: outputFP += 75; break;
+		case 2: outputFP += 110; break;
+		case 3: outputFP += 140; break;
+		case 4: outputFP += 160; break;
+		default: break;
+	}
+
+	return {
+		"day": capAttackPower(outputFP, 150),
+		"night": capAttackPower(outputFP, 300)
+	};
+};
+
 Ship.prototype.canOASW = function (level) {
 	if(this.id === 141)	// Isuzu Kai Ni
 		return true;
@@ -377,6 +432,23 @@ Ship.prototype.getArtillerySpotting = function () {
 	}
 
 	return 0; // just in case
+};
+
+Ship.prototype.getNBCI = function () {
+	var nTorpedoes = 0;
+
+	for (var i = 0; i < this.getMaxEquipSlot(); i++) {
+		var equip = this.currentEquipment[i];
+		if(equip != null) {
+			if(equip.type == 12 || equip.type == 13) {
+				nTorpedoes += 1;
+			}
+		}
+	}
+
+	// I know there's other night battle set ups (double attack, cutins, etc.)
+	// but are they really important to display? 
+	return (nTorpedoes >= 2);
 };
 
 Ship.prototype.getAACI = function () {
