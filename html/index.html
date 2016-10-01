@@ -97,110 +97,125 @@
 			</table>
 		</form>
 
-		<table id="fleetStats">
-			<!--
-			<col style="width:5%">
-			<col style="width:35%">
-			<col style="width:5%">
-			<col style="width:5%">
-			<col style="width:5%">
-			<col style="width:5%">
-			<col style="width:5%">
-			<col style="width:5%">
-			<col style="width:5%">
-			<col style="width:5%">
-			<col style="width:5%">
-			<col style="width:10%">
-			<col style="width:10%">
-			-->
+		<div class="infoView">
+			<div class="sectionTabs">
+				<span id="fleetStatsTab" class="secTab">Stat Breakdown</span>
+				<span id="fleetInfoTab" class="secTab">Fleet Info</span>
+			</div>
+			<div class="tabbedInfoSection">
+				<div id="fleetStatsSection" class="infoSection">
+					<table id="fleetStats">
+						<!--
+						<col style="width:5%">
+						<col style="width:35%">
+						<col style="width:5%">
+						<col style="width:5%">
+						<col style="width:5%">
+						<col style="width:5%">
+						<col style="width:5%">
+						<col style="width:5%">
+						<col style="width:5%">
+						<col style="width:5%">
+						<col style="width:5%">
+						<col style="width:10%">
+						<col style="width:10%">
+						-->
 
-			<col>
-			<col>
-			<col>
-			<col>
-			<col>
-			<col>
-			<col>
-			<col>
-			<col>
-			<col>
-			<col>
-			<col>
-			<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
+						<col>
 
-			<thead>
-				<tr>
-					<th rowspan="2">Slot</th>
-					<th rowspan="2">Ship</th>
-					<th>HP</th>
-					<th>Fire</th>
-					<th>Torp</th>
-					<th>AA</th>
-					<th>Armor</th>
-					<th>ASW</th>
-					<th>Evade</th>
-					<th>LOS</th>
-					<th>Luck</th>
-					<th>Speed</th>
-					<th>Range</th>
-				</tr>
+						<thead>
+							<tr>
+								<th rowspan="2">Slot</th>
+								<th rowspan="2">Ship</th>
+								<th>HP</th>
+								<th>Fire</th>
+								<th>Torp</th>
+								<th>AA</th>
+								<th>Armor</th>
+								<th>ASW</th>
+								<th>Evade</th>
+								<th>LOS</th>
+								<th>Luck</th>
+								<th>Speed</th>
+								<th>Range</th>
+							</tr>
 
-				<tr>
-					<th>Anti-Instl.</th>
-					<th>Night Atk</th>
-					<th>AACI</th>
-					<th>OASW</th>
-					<th colspan="2">Opening Airstrike</th>
-					<th colspan="2">Fighter Power</th>
-					<th colspan="2">Artillery Spotting</th>
-					<th colspan="2">Resource Consumption</th>
-				</tr>
-			</thead>
+							<tr>
+								<th>Anti-Instl.</th>
+								<th>Night Atk</th>
+								<th>AACI</th>
+								<th>OASW</th>
+								<th colspan="2">Opening Airstrike</th>
+								<th colspan="2">Fighter Power</th>
+								<th colspan="2">Artillery Spotting</th>
+								<th colspan="2">Resource Consumption</th>
+							</tr>
+						</thead>
 
-			<tbody>
-				<tr>
-					<th rowspan="2">1</th> <td rowspan="2"><!-- Ship name --></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
-				</tr>
-				<tr>
-					<td></td> <td></td> <td></td> <td></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td>
-				</tr>
+						<tbody>
+							<tr>
+								<th rowspan="2">1</th> <td rowspan="2"><!-- Ship name --></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+							</tr>
+							<tr>
+								<td></td> <td></td> <td></td> <td></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td>
+							</tr>
 
-				<tr>
-					<th rowspan="2">2</th> <td rowspan="2"></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
-				</tr>
-				<tr>
-					<td></td> <td></td> <td></td> <td></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td>
-				</tr>
+							<tr>
+								<th rowspan="2">2</th> <td rowspan="2"></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+							</tr>
+							<tr>
+								<td></td> <td></td> <td></td> <td></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td>
+							</tr>
 
-				<tr>
-					<th rowspan="2">3</th> <td rowspan="2"></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
-				</tr>
-				<tr>
-					<td></td> <td></td> <td></td> <td></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td>
-				</tr>
+							<tr>
+								<th rowspan="2">3</th> <td rowspan="2"></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+							</tr>
+							<tr>
+								<td></td> <td></td> <td></td> <td></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td>
+							</tr>
 
-				<tr>
-					<th rowspan="2">4</th> <td rowspan="2"></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
-				</tr>
-				<tr>
-					<td></td> <td></td> <td></td> <td></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td>
-				</tr>
+							<tr>
+								<th rowspan="2">4</th> <td rowspan="2"></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+							</tr>
+							<tr>
+								<td></td> <td></td> <td></td> <td></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td>
+							</tr>
 
-				<tr>
-					<th rowspan="2">5</th> <td rowspan="2"></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
-				</tr>
-				<tr>
-					<td></td> <td></td> <td></td> <td></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td>
-				</tr>
+							<tr>
+								<th rowspan="2">5</th> <td rowspan="2"></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+							</tr>
+							<tr>
+								<td></td> <td></td> <td></td> <td></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td>
+							</tr>
 
-				<tr>
-					<th rowspan="2">6</th> <td rowspan="2"></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
-				</tr>
-				<tr>
-					<td></td> <td></td> <td></td> <td></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td>
-				</tr>
+							<tr>
+								<th rowspan="2">6</th> <td rowspan="2"></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+							</tr>
+							<tr>
+								<td></td> <td></td> <td></td> <td></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td> <td colspan="2"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div> <!-- end of fleetStatsSection -->
 
-			</tbody>
-		</table>
+				<div id="fleetInfoSection" class="infoSection">
+					<p>
+						Stuff goes here.
+					</p>
+				</div> <!-- end of fleetInfoSection -->
+			</div> <!-- end of tabbedInfoSection -->
+		</div> <!-- end of infoView -->
 	</body>
 </html>

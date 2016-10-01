@@ -46,3 +46,44 @@ table {
 .noSpotting {
 	color: red;
 }
+
+.infoView {
+	position: relative;
+	top: 10px;
+}
+
+.sectionTabs {
+}
+
+.tabbedInfoSection {
+	position: relative;
+	top: 5px;
+}
+
+.secTab {
+	display: inline;
+
+	border-width: 1px;
+	border-radius: 5px;
+	border-style: solid;
+
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.secTab:hover, .selectedSecTab {
+	display: inline;
+
+	border-width: 1px;
+	border-radius: 5px;
+	border-style: solid;
+
+	padding-left: 5px;
+	padding-right: 5px;
+
+	background-color: yellow;
+}
+
+.infoSection {
+	display: none;
+}

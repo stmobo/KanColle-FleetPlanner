@@ -374,6 +374,18 @@ function populateFleetSelector() {
 	}
 }
 
+var tabs = ["fleetStats", "fleetInfo"];
+
+function showTab(tab) {
+	for (var i = 0; i < tabs.length; i++) {
+		document.getElementById(tabs[i]+"Tab").className = "secTab";
+		document.getElementById(tabs[i]+"Section").style.display = "none";
+	}
+
+	document.getElementById(tab+"Tab").className = "selectedSecTab";
+	document.getElementById(tab+"Section").style.display = "block";
+}
+
 window.onload = function() {
 	populateFleetSelector();
 
@@ -394,5 +406,12 @@ window.onload = function() {
 		})(i);
 
 		newBaseShipSelected(i);
+	}
+
+	for (var i = 0; i < tabs.length; i++) {
+		(function(t) {
+			var tab = document.getElementById(t+"Tab");
+			tab.onclick = function() { showTab(t); };
+		})(tabs[i]);
 	}
 }
