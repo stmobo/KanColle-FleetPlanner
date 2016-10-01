@@ -1,13 +1,14 @@
 {
   "name": "kancolle-fleetplanner",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "English fleet planner and builder for Kantai Collection",
   "main": "main.js",
   "scripts": {
-    "start": ".\\node_modules\\.bin\\electron ."
+    "start": ".\\node_modules\\.bin\\electron .",
+    "test": ".\\node_modules\\.bin\\electron --enable-logging ."
   },
   "author": "Sebastian Mobo <stmobo@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "electron-prebuilt": "^1.3.4"
   }
