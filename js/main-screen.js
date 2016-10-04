@@ -620,7 +620,7 @@ function updateFleetInfoTab() {
 	}
 }
 
-var tabs = ["fleetStats", "fleetInfo"];
+var tabs = ["fleetStats", "fleetInfo", "fleetConsum"];
 
 function showTab(tab) {
 	for (var i = 0; i < tabs.length; i++) {
