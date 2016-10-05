@@ -6,7 +6,7 @@ var $ = require('jquery');
 
 function Fleet() {
 	// prevent creating a completely empty fleet
-	this.ships = [  new Ship(kcJSON.ships.shipSeries[0].ships[0].id); ];
+	this.ships = [  new Ship(kcJSON.ships.shipSeries[1].ships[0].id) ];
 
 	this.onUpdate = $.Callbacks();
 }
@@ -37,7 +37,7 @@ Fleet.prototype.swapSlots = function(i, j) {
 	this.onUpdate.fire();
 }
 
-Fleet.prototype.getShipCount() {
+Fleet.prototype.getShipCount = function() {
 	return this.ships.length;
 }
 
@@ -123,7 +123,7 @@ Fleet.prototype.getShipTypeCodes = function () {
 	   }
    }
 
-   for (var i = 1; i <= 6; i++) {
+   for (var i = 0; i < 6; i++) {
 	   if(this.ships[i] == null)
 		   continue;
 
@@ -163,8 +163,8 @@ Fleet.prototype.canBeNormalEscort = function () {
 		fleetCodes["BBV"] == 0 && // Maximum 2 BB, no slow BB
 		fleetCodes["CVL"] <= 1 && // Maximum 1 CVL
 		!isSlow && // No slow ships? (need to verify, seems correct though)
-		currentFleet[1].selected.type != 13 &&
-		currentFleet[1].selected.type != 14 /* Flagship is not SS(V) */
+		this.ships[0].type != 13 &&
+		this.ships[0].type != 14 /* Flagship is not SS(V) */
 	) {
 		return true;
 	}
@@ -179,8 +179,8 @@ Fleet.prototype.canBeCTFMain = function () {
 		(fleetCodes["BB"] + fleetCodes["FBB"] + fleetCodes["BBV"]) <= 2 && // Maximum 2 BB/BBV
 		(fleetCodes["CV"] + fleetCodes["CVB"] + fleetCodes["CVL"]) >= 2 && // Minimum 2 CV(L/B)
 		(fleetCodes["CV"] + fleetCodes["CVB"] + fleetCodes["CVL"]) <= 4 && // Maximum 4 CV(L/B)
-		currentFleet[1].selected.type != 13 &&
-		currentFleet[1].selected.type != 14 /* Flagship is not SS(V) */
+		this.ships[0].type != 13 &&
+		this.ships[0].type != 14 /* Flagship is not SS(V) */
 	) {
 		return true;
 	}
@@ -209,9 +209,9 @@ Fleet.prototype.canBeTECFMain = function () {
 Fleet.prototype.canBeTECFEscort = function () {
 	var fleetCodes = this.getShipTypeCodes();
 	if(
-		(currentFleet[1].selected.type == 21 ||
-		 currentFleet[1].selected.type == 22 ||
-		 currentFleet[1].selected.type == 28) && /* Flagship must be CL/CT */
+		(this.ships[0].type == 21 ||
+		 this.ships[0].type == 22 ||
+		 this.ships[0].type == 28) && /* Flagship must be CL/CT */
 		(fleetCodes["CL"] + fleetCodes["CT"]) <= 2 && /* Maximum 2 CL/CT */
 		fleetCodes["DD"] >= 3 && /* Minimum 3 DD */
 		(fleetCodes["CA"] + fleetCodes["CAV"]) <= 2 && /* Maximum 2 CA/CAV */

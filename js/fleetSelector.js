@@ -30,7 +30,7 @@ function disableSelectorSlot(slotNum) {
 
 	// disable all item slots:
 	for(var i=1;i<=4;i++) {
-		disableItemSlot(i);
+		disableItemSlot(slotNum, i);
 	}
 
 	// clear ship type display
@@ -41,7 +41,7 @@ function disableSelectorSlot(slotNum) {
 }
 
 function refreshSlot(fleet, slotNum) {
-	if(fleet.ships[slotNum-1] == null) {
+	if(fleet.ships.length < (slotNum-1) || fleet.ships[slotNum-1] == null) {
 		return disableSelectorSlot(slotNum);
 	}
 
@@ -49,33 +49,37 @@ function refreshSlot(fleet, slotNum) {
 	var seriesIdx = 0;
 
 	/* Set series selector: */
-	$("#flt-sel-"+slotNum).val(fleet[slotNum-1].getBaseShipID());
+	$("#flt-sel-"+slotNum).val(fleet.ships[slotNum-1].getBaseShipID());
 
 	/* Populate remodel selector: */
+	$("#flt-model-"+slotNum).empty();
 	for (var i = 0; i < series.ships.length; i++) {
 		if(series.ships[i].id == fleet.ships[slotNum-1].id) {
 			seriesIdx = i;
 		}
 
-		for (var i = 0; i < models.length; i++) {
-			var opt = document.createElement('option');
-			opt.value = models[i].id;
-			opt.text = kcJSON.ships.getSuffixText(models[i].name.suffix);
+		var opt = document.createElement('option');
+		var data = kcJSON.ships.getShipDataByID(series.ships[i].id);
 
-			$("#flt-model-"+slotNum).append(opt);
-		}
+		opt.value = data.id;
+		opt.text = kcJSON.ships.getSuffixText(data.name.suffix);
+
+		$("#flt-model-"+slotNum).append(opt);
 	}
 
 	/* Set level, remodel, and ship type: */
 	$("#flt-lvl-"+slotNum).val(fleet.ships[slotNum-1].level);
 	$("#flt-model-"+slotNum).val(fleet.ships[slotNum-1].id);
-	$("#flt-type-"+slotNum).text(fleet[slotNum-1].getTypeInfo().code);
+	$("#flt-type-"+slotNum).text(fleet.ships[slotNum-1].getTypeInfo().code);
 
 	/* Adjust item selectors: */
 	updateItemSelectors(fleet.ships[slotNum-1], slotNum);
 
 	for(var i2=0;i2<fleet.ships[slotNum-1].getMaxEquipSlot();i2++) {
-		$("#flt-itm-"+i+"-"+(i2+1)).val(fleet.ships[slotNum-1].currentEquipment[i2].id);
+		$("#flt-itm-"+slotNum+"-"+(i2+1)).val(
+			(fleet.ships[slotNum-1].currentEquipment[i2] != null) ?
+			fleet.ships[slotNum-1].currentEquipment[i2].id : ""
+		);
 	}
 }
 
@@ -109,10 +113,10 @@ function newBaseShipSelected(fleet, slotNum) {
 		return removeShipFromFleet(fleet, slotNum);
 	} else if(fleet.ships[slotNum-1] == null) {
 		// adding new ship to fleet:
-		return addShipToFleet(fleet, new Ship($("#flt-model-"+slotNum).val());
+		return addShipToFleet(fleet, new Ship($("#flt-sel-"+slotNum).val()));
 	} else {
 		return setShipInFleet(fleet,
-								new Ship($("#flt-model-"+slotNum).val()),
+								new Ship($("#flt-sel-"+slotNum).val()),
 								slotNum);
 	}
 }
@@ -128,11 +132,11 @@ function updateShipLevel(fleet, slotNum) {
 
 function updateShipItem(fleet, slotNum, itemNum) {
 	if($("flt-itm-"+slotNum+"-"+itemNum).val() === "") {
-		fleet.ships[slotNum-1].selected.unequipItem(itemNum-1);
+		fleet.ships[slotNum-1].unequipItem(itemNum-1);
 	} else {
-		fleet.ships[slotNum-1].selected.equipItem(
+		fleet.ships[slotNum-1].equipItem(
 			itemNum-1,
-			kcJSON.items.getItemByID(itemSelector.value)
+			kcJSON.items.getItemByID($("#flt-itm-"+slotNum+"-"+itemNum).val())
 		);
 	}
 
@@ -178,7 +182,7 @@ function updateItemSelectors(ship, slotNum) {
 
 	/* Clear disabled item slots: */
 	for(var i=ship.getMaxEquipSlot()+1; i<=4; i++) {
-		disableItemSlot(i);
+		disableItemSlot(slotNum, i);
 	}
 }
 
@@ -253,3 +257,20 @@ function initFleetSelector() {
 }
 
 $( initFleetSelector );
+
+$(function() {
+	for (var i = 1; i <= 6; i++) {
+		(function(n) {
+			$("#flt-sel-"+n).change(function() { newBaseShipSelected(currentFleet, n); });
+			$("#flt-model-"+n).change(function() { updateShipModel(currentFleet, n); });
+			$("#flt-lvl-"+n).change(function() { updateShipLevel(currentFleet, n); });
+
+			$("#flt-itm-"+n+"-1").change(function() { updateShipItem(currentFleet, n, 1); });
+			$("#flt-itm-"+n+"-2").change(function() { updateShipItem(currentFleet, n, 2); });
+			$("#flt-itm-"+n+"-3").change(function() { updateShipItem(currentFleet, n, 3); });
+			$("#flt-itm-"+n+"-4").change(function() { updateShipItem(currentFleet, n, 4); });
+		})(i);
+
+		refreshSlot(currentFleet, i);
+	}
+});

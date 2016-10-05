@@ -76,3 +76,6 @@ function updateFleetInfoTab(fleet) {
 		tecfDisplay.className = "noValue";
 	}
 }
+
+currentFleet.onUpdate.add(function(){ updateFleetInfoTab(currentFleet); });
+$( function(){ updateFleetInfoTab(currentFleet); } );

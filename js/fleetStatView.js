@@ -8,7 +8,7 @@ var Ship = require(path.join(app.getAppPath(), 'js/ship.js'));
 /*
  * Stats Breakdown View:
  */
-fleetStatView.prototype.updateSlot = function (ship, slotNum) {
+function updateSlot(ship, slotNum) {
 	var statRow = document.getElementById("fleetStats").rows[slotNum*2];
 
 	var stats = ship.getCurrentStats();
@@ -44,7 +44,7 @@ fleetStatView.prototype.updateSlot = function (ship, slotNum) {
 		ship.getNightAttack(level) +
 		" ~ " + natk;
 	} else {
-		statRow2.cells[1].textContent = ship.getNightAttack(level);
+		statRow2.cells[1].textContent = ship.getNightAttack();
 	}
 
 
@@ -59,7 +59,7 @@ fleetStatView.prototype.updateSlot = function (ship, slotNum) {
 	}
 
 	// Cell 4: OASW
-	if(ship.canOASW(level)) {
+	if(ship.canOASW()) {
 		statRow2.cells[3].textContent = "Yes";
 		statRow2.cells[3].className = "hasValue";
 	} else {
@@ -68,7 +68,7 @@ fleetStatView.prototype.updateSlot = function (ship, slotNum) {
 	}
 
 	// Cell 5: Opening Airstrike
-	var oas = ship..getOpeningAirstrike();
+	var oas = ship.getOpeningAirstrike();
 	statRow2.cells[4].innerHTML = oas.min + " ~ " + oas.max;
 
 	// Cell 6: Fighter power
@@ -104,14 +104,14 @@ fleetStatView.prototype.updateSlot = function (ship, slotNum) {
 		" Ammo: " + ship.consum.ammo;
 
 	for (var i = 1; i <= ship.equip.length; i++) {
-		var hangarElem = document.getElementById("flt-hangar-"+(slotNum+1)+"-"+i);
+		var hangarElem = document.getElementById("flt-hangar-"+(slotNum)+"-"+i);
 		hangarElem.innerHTML = ship.slot[i-1];
 	}
 
 	document.getElementById("flt-type-"+slotNum).innerHTML = ship.getTypeInfo().code;
 }
 
-fleetStatView.prototype.clearSlot = function (slotNum) {
+function clearSlot(slotNum) {
 	var statRow = document.getElementById("fleetStats").rows[slotNum*2];
 
 	statRow.cells[1].textContent = emptySlotLabel;
@@ -140,3 +140,29 @@ fleetStatView.prototype.clearSlot = function (slotNum) {
 	statRow2.cells[6].innerHTML = "";
 	statRow2.cells[7].innerHTML = "";
 }
+
+currentFleet.onUpdate.add(function(slotNum){
+	if(typeof slotNum != 'undefined') {
+		// update one slot:
+		updateSlot(currentFleet.ships[slotNum], slotNum+1);
+	} else {
+		// update everything:
+		for(var i=0;i<6;i++) {
+			if(currentFleet.ships[i] != null) {
+				updateSlot(currentFleet.ships[i], i+1);
+			} else {
+				clearSlot(i+1);
+			}
+		}
+	}
+})
+
+$(function(){
+	for(var i=0;i<6;i++) {
+		if(currentFleet.ships[i] != null) {
+			updateSlot(currentFleet.ships[i], i+1);
+		} else {
+			clearSlot(i+1);
+		}
+	}
+})

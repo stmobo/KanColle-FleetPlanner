@@ -132,7 +132,7 @@ var Ship = function(id) {
 		}
 	}
 
-	this.level = 1;
+	this.level = this.base_lvl;
 };
 
 Ship.prototype.getRemodels = function () {
