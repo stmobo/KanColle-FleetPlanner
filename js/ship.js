@@ -131,6 +131,8 @@ var Ship = function(id) {
 			this.currentEquipment[i] = null;
 		}
 	}
+
+	this.level = 1;
 };
 
 Ship.prototype.getRemodels = function () {
@@ -143,6 +145,18 @@ Ship.prototype.getRemodels = function () {
 
 	return ret;
 };
+
+Ship.prototype.getBaseShip = function() {
+	var series = db.ships.shipSeries[this.series];
+
+	return new Ship(series.ships[0].id);
+}
+
+Ship.prototype.getBaseShipID = function() {
+	var series = db.ships.shipSeries[this.series];
+
+	return series.ships[0].id;
+}
 
 Ship.prototype.getFullName = function () {
 	if(this.name.suffix == null) {
@@ -254,6 +268,9 @@ Ship.prototype.estimateStatsAtLevel = function(level) {
 }
 
 Ship.prototype.getCurrentStats = function (level) {
+	if(typeof level === 'undefined')
+		level = this.level;
+
 	var stats = this.estimateStatsAtLevel(level);
 
 	for (var i = 0; i < this.getMaxEquipSlot(); i++) {
@@ -447,7 +464,7 @@ Ship.prototype.getNBCI = function () {
 	}
 
 	// I know there's other night battle set ups (double attack, cutins, etc.)
-	// but are they really important to display? 
+	// but are they really important to display?
 	return (nTorpedoes >= 2);
 };
 
