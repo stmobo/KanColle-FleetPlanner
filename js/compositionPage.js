@@ -15,7 +15,7 @@ var currentFleet = new Fleet();
 var tabs = ["fleetStats", "fleetInfo", "fleetConsum"];
 
 function showTab(tab) {
-	$(".secTab").removeClass().addClass("secTab");
+	$(".selectedSecTab").removeClass().addClass("secTab");
 	$(".infoSection").css("display", "none");
 
 	$("#"+tab+"Tab").removeClass().addClass("selectedSecTab");
