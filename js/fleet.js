@@ -113,6 +113,210 @@ Fleet.prototype.getShorthand = function () {
 	return shorthand;
 };
 
+/*
+ * Parses a comma separated list of numbers and ship type codes.
+ * "XX" as a type code is interpreted to mean "anything".
+ *
+ * By default numbers are taken as minimums.
+ * Examples:
+ *  "1CL,5DD" (expedition 37 composition string) -> minimum 1 CL, 5 DD.
+ *  "4XX" (expedition 2 composition string) -> minimum 4 of any ship type.
+ *  "5DD,1XX" (expedition 38 composition string) -> minimum 5 DDs and one other.
+ *
+ * In each composition substring, the first character will be interpreted as the minimal number of ships.
+ * All other characters will be interpreted as a type code.
+ *
+ * All tests are inclusive.
+ *
+ * Exclamation points ('!') can be used to test for maximum ship type counts.
+ *  An exclamation point used in front of a number will be interpreted as a maximum.
+ *  An exclamation point used alone will be interpreted as a maximum of 0 (i.e. only return true if no ships are of that type.)
+ * Examples:
+ *  "!SS": Test for no submarines.
+ *  "2CV,!4CV": Test to see if the number of CVs is between 2 and 4, inclusive.
+ *
+ * substFunc will be called for every ship in the fleet, passing in their type IDs as the only argument.
+ * If this function returns a string, then that string will be used as the type code for the corresponding ship.
+ * Otherwise, the type code string will be drawn from the database.
+ * This function should be used to handle substitutions.
+ *
+ * flagshipType, as a string, can be optionally used to additionally check the ship type of the flagship,
+ * for example in the Combined Fleet composition requirements (not an SS/SSV).
+ *
+ * flagshipType should NOT include a number (it's assumed to be one by definition).
+ * It can, however, start with a '!' (see above).
+ */
+
+function testCompSubstr(codeCounts, comp, nShips) {
+	if(comp.charAt(0) === '!') {
+		if(isNaN(comp.charAt(1))) {
+			// check if none:
+			var typeCode = comp.substring(1);
+
+			// note: we don't check for !XX, since that's impossible for any normal (KC-allowed) fleet.
+
+			if(codeCounts.hasOwnProperty(typeCode))
+				return false;
+
+			if(codeCounts[typeCode] > 0) {
+				return false;
+			}
+		} else {
+			// test maximum:
+			var maximum = Number(comp.charAt(1));
+			var typeCode = comp.substring(2);
+
+			if(typeCode === 'XX') {
+				if(nShips > maximum) {
+					return false;
+				}
+			} else {
+				if(!codeCounts.hasOwnProperty(typeCode)) {
+					return true;
+				}
+
+				if(codeCounts[typeCode] > maximum) {
+					return false;
+				}
+			}
+		}
+	} else if(!isNaN(comp.charAt(0))) {
+		// test minimum:
+		var minimum = Number(comp.charAt(0));
+		var typeCode = comp.substring(1);
+
+		if(typeCode === 'XX') {
+			if(nShips < minimum) {
+				return false;
+			}
+		} else {
+			if(!codeCounts.hasOwnProperty(typeCode)) {
+				return false;
+			}
+
+			if(codeCounts[typeCode] < minimum) {
+				return false;
+			}
+		}
+	} else {
+		throw "Invalid composition specification: " + comp;
+	}
+
+	return true;
+}
+
+Fleet.prototype.checkComposition = function (compStr, substFunc, flagshipType) {
+	var codeCounts = {};
+
+	var flagNormalizedCode = "";
+
+	/* Get type codes for all ships: */
+	for (var i = 0; i < this.ships.length; i++) {
+		let normalizedCode = kcJSON.ships.shipTypes[this.ships[i].type].code;
+		if(substFunc != null) {
+			let newCode = substFunc(this.ships[i].type);
+			if(newCode) {
+				normalizedCode = newCode;
+			}
+		}
+
+		if(i == 0)
+			flagNormalizedCode = normalizedCode;
+
+		if(codeCounts.hasOwnProperty(normalizedCode)) {
+			codeCounts[normalizedCode] += 1;
+		} else {
+			codeCounts[normalizedCode] = 1;
+		}
+	}
+
+	/* Parse composition strings: */
+	var comp = compStr.split(',');
+	for (var i = 0; i < comp.length; i++) {
+		if(!testCompSubstr(codeCounts, comp[i].trim(), this.ships.length)) {
+			return false;
+		}
+	}
+
+	// We check for 'XX' here because actually evaluating that would be pointless.
+	// !XX works, though (i.e. it always returns false).
+	if(typeof flagshipType === 'string' && flagshipType !== 'XX') {
+		if(flagshipType.charAt(0) === '!') {
+			// test NOT type
+			var typeCode = flagshipType.substring(1);
+			return (flagNormalizedCode !== typeCode);
+		} else {
+			return (flagNormalizedCode === flagshipType);
+		}
+	}
+
+	return true;
+};
+
+/* Like above, but returns true/false for each substring in an array of tuples:
+ * [ {"comp": <composition string condition>, "flagship": <true if passed as flagshipType> "value": <true/false>} ... ]
+ */
+Fleet.prototype.testComposition = function (compStr, substFunc, flagshipType) {
+	var codeCounts = {};
+
+	var flagNormalizedCode = "";
+
+	var ret = [];
+
+	/* Get type codes for all ships: */
+	for (var i = 0; i < this.ships.length; i++) {
+		let normalizedCode = kcJSON.ships.shipTypes[this.ships[i].type].code;
+		if(substFunc != null) {
+			let newCode = substFunc(this.ships[i].type);
+			if(newCode) {
+				normalizedCode = newCode;
+			}
+		}
+
+
+
+		if(i == 0)
+			flagNormalizedCode = normalizedCode;
+
+		if(codeCounts.hasOwnProperty(normalizedCode)) {
+			codeCounts[normalizedCode] += 1;
+		} else {
+			codeCounts[normalizedCode] = 1;
+		}
+	}
+
+	/* Parse composition strings: */
+	var comp = compStr.split(',');
+	for (var i = 0; i < comp.length; i++) {
+		compSub = comp[i].trim();
+		ret.push({
+			'comp': compSub,
+			'flagship': false,
+			'value': testCompSubstr(codeCounts, compSub, this.ships.length)
+		});
+	}
+
+	// we handle this separately:
+	if(typeof flagshipType === 'string' && flagshipType !== 'XX') {
+		if(flagshipType.charAt(0) === '!') {
+			var typeCode = flagshipType.substring(1);
+			ret.push({
+				'comp': typeCode,
+				'flagship': true,
+				'value': (flagNormalizedCode !== typeCode)
+			});
+		} else {
+			ret.push({
+				'comp': flagshipType,
+				'flagship': true,
+				'value': (flagNormalizedCode === flagshipType)
+			});
+		}
+	}
+
+	return ret;
+};
+
 Fleet.prototype.getShipTypeCodes = function () {
    var counts = {};
    for (var id in kcJSON.ships.shipTypes) {

@@ -12,7 +12,7 @@ var Fleet = require(path.join(app.getAppPath(), '/js/fleet.js'));
 
 var currentFleet = new Fleet();
 
-var tabs = ["fleetStats", "fleetInfo", "fleetConsum"];
+var tabs = ["fleetStats", "fleetInfo", "fleetExped"];
 
 function showTab(tab) {
 	$(".selectedSecTab").removeClass().addClass("secTab");

@@ -7,6 +7,7 @@
 		<script src="../js/fleetSelector.js"></script>
 		<script src="../js/fleetStatView.js" charset="utf-8"></script>
 		<script src="../js/fleetInfoView.js" charset="utf-8"></script>
+		<script src="../js/fleetExpedView.js" charset="utf-8"></script>
 		<link rel="stylesheet" type="text/css" href="../css/fleetComposition.css">
 	</head>
 	<body>
@@ -104,7 +105,7 @@
 			<div class="sectionTabs">
 				<span id="fleetStatsTab" class="secTab">Stat Breakdown</span>
 				<span id="fleetInfoTab" class="secTab">Fleet Info</span>
-				<span id="fleetConsumTab" class="secTab">Resource Consumption</span>
+				<span id="fleetExpedTab" class="secTab">Expeditions</span>
 			</div>
 			<div class="tabbedInfoSection">
 				<div id="fleetStatsSection" class="infoSection">
@@ -233,9 +234,54 @@
 					</ul>
 				</div> <!-- end of fleetInfoSection -->
 
-				<div id="fleetConsumSection" class="infoSection">
+				<div id="fleetExpedSection" class="infoSection">
+					<form class="expedInputForm">
+						<select id="expedSelector"></select>
+						<br>
+						Great Success?: <input type="checkbox" id="expedCheckGS" value="gs">
+					</form>
+					<ul id="expedInfo" class="expedInfo">
+						<li>Time: <span id="expedInfo-Time"></span></li>
+						<li>Ship XP: <span id="expedInfo-ShipXP"></span></li>
+						<li>HQ XP: <span id="expedInfo-HQXP"></span></li>
+					</ul>
+					<span id="expedComp-Header">Required  Composition:</span>
+					<ul id="expedComp" class="expedInfo"></ul>
+					<table id="expedStats">
+						<col> <!-- Header -->
+						<col> <!-- Fuel -->
+						<col> <!-- Ammo -->
+						<col> <!-- Steel -->
+						<col> <!-- Bauxite -->
+						<col> <!-- Items -->
 
-				</div>
+						<thead>
+							<tr>
+								<th><!-- Empty --></th>
+								<th>Fuel</th>
+								<th>Ammo</th>
+								<th>Steel</th>
+								<th>Bauxite</th>
+								<th>Items</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr>
+								<th>Income</th> <td><td> <td><td> <td><td> <td><td> <td><td>
+							</tr>
+							<tr>
+								<th>Resupply</th> <td><td> <td><td> <td><td> <td><td> <td><td>
+							</tr>
+							<tr>
+								<th>Total</th> <td><td> <td><td> <td><td> <td><td> <td><td>
+							</tr>
+							<tr>
+								<th>Hourly</th> <td><td> <td><td> <td><td> <td><td> <td><td>
+							</tr>
+						</tbody>
+					</table>
+				</div> <!-- end of fleetExpedSection -->
 			</div> <!-- end of tabbedInfoSection -->
 		</div> <!-- end of infoView -->
 	</body>

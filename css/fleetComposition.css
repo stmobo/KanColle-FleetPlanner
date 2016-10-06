@@ -72,6 +72,6 @@ table {
 	display: none;
 }
 
-.fleetInfo {
+.fleetInfo .expedInfo {
 	list-style-type: none;
 }

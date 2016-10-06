@@ -1,4 +1,6 @@
-var db = require('../js/KanColle-JSON-DB.js');
+var app = require('electron').remote.app;
+var path = require('path');
+var db = require(path.join(app.getAppPath(), 'js/KanColle-JSON-DB.js'));
 
 /*
  * Example ship object data:

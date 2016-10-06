@@ -50,6 +50,10 @@ var itemsDB = function() {
 	}
 };
 
+var expedsDB = function() {
+	this.data = readInJSONList('expeditions.json');
+}
+
 shipsDB.prototype.getShipDataByID = function (id) {
 	if(this.ships.hasOwnProperty(id)) {
 		return this.ships[id];
@@ -159,11 +163,15 @@ itemsDB.prototype.getAllItemsOfType = function (type) {
 	}
 };
 
+expedsDB.prototype.getExpeditionByID = function (id) {
+	if(this.data.hasOwnProperty(id))
+		return this.data[id];
+};
+
 function KanColle_JSON_DB() {
 	this.ships = new shipsDB();
 	this.items = new itemsDB();
+	this.expeds = new expedsDB();
 };
-
-
 
 module.exports = new KanColle_JSON_DB();
